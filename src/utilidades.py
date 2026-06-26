@@ -1,11 +1,25 @@
-crear_carpeta()
+from config import (
+    CARPETA_ENTRADA,
+    CARPETA_SALIDA,
+    CARPETA_LOGS,
+    CARPETA_DATOS
+)
 
-quitar_tildes()
 
-normalizar_texto()
+def crear_carpetas():
 
-limpiar_espacios()
+    for carpeta in [
 
-obtener_fecha()
+        CARPETA_ENTRADA,
 
-etc
+        CARPETA_SALIDA,
+
+        CARPETA_LOGS,
+
+        CARPETA_DATOS
+
+    ]:
+
+        carpeta.mkdir(
+            exist_ok=True
+        )
