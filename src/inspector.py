@@ -1,5 +1,7 @@
 from rich.console import Console
 from rich.table import Table
+from config import ALIAS_COLUMNAS
+from src.utilidades import normalizar_texto
 import pandas as pd
 
 console = Console()
@@ -196,6 +198,101 @@ class InspectorDataFrame:
 
     # -------------------------------------------------
 
+    def mostrar_muestra(self, filas: int = 5) -> None:
+        """
+        Muestra una vista previa de las primeras filas del DataFrame.
+
+        Args:
+            filas (int): Cantidad de registros a mostrar.
+        """
+
+        muestra = self.df.head(filas)
+
+        tabla = Table(
+            title=f"Primeros {filas} registros",
+            show_header=True,
+            header_style="bold cyan",
+        )
+
+        # Crear las columnas dinámicamente
+        for columna in muestra.columns:
+            tabla.add_column(str(columna), overflow="fold")
+
+        # Agregar las filas
+        for _, fila in muestra.iterrows():
+            tabla.add_row(*[str(valor) for valor in fila])
+
+        console.print(tabla)
+
+    # -------------------------------------------------
+
+    def detectar_columnas_importantes(self) -> dict[str, str | None]:
+        """
+        Detecta automáticamente las columnas importantes del DataFrame.
+
+        Returns:
+            dict[str, str | None]:
+                Diccionario donde la clave representa el tipo de columna
+                y el valor corresponde al nombre original encontrado.
+        """
+
+        columnas_detectadas = {
+            tipo: None
+            for tipo in ALIAS_COLUMNAS
+        }
+
+        for columna in self.df.columns:
+
+            columna_normalizada = normalizar_texto(columna)
+
+            for tipo, aliases in ALIAS_COLUMNAS.items():
+
+                if columna_normalizada in aliases:
+
+                    columnas_detectadas[tipo] = columna
+
+                    break
+
+        return columnas_detectadas
+    
+    # -------------------------------------------------
+
+    def mostrar_columnas_importantes(self) -> None:
+        """
+        Muestra las columnas importantes detectadas.
+        """
+
+        columnas = self.detectar_columnas_importantes()
+
+        tabla = Table(
+            title="Columnas importantes detectadas",
+            show_header=True,
+            header_style="bold cyan",
+        )
+
+        tabla.add_column("Tipo", style="green")
+        tabla.add_column("Columna detectada")
+
+        for tipo, columna in columnas.items():
+
+            if columna is None:
+
+                tabla.add_row(
+                    tipo.capitalize(),
+                    "[red]No detectada[/red]"
+                )
+
+            else:
+
+                tabla.add_row(
+                    tipo.capitalize(),
+                    f"[green]{columna}[/green]"
+                )
+
+        console.print(tabla)
+
+    # -------------------------------------------------
+
     def ejecutar(self) -> None:
         """
         Ejecuta la inspección básica.
@@ -205,3 +302,5 @@ class InspectorDataFrame:
         self.mostrar_tipos()
         self.mostrar_nulos()
         self.mostrar_unicos()
+        self.mostrar_muestra()
+        self.mostrar_columnas_importantes()

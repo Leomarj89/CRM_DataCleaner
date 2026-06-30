@@ -40,3 +40,64 @@ EXTENSIONES_PERMITIDAS = [
     ".csv",
     ".xlsx"
 ]
+
+ALIAS_COLUMNAS = {
+
+    "nombre": [
+        "nombre",
+        "nombres",
+    ],
+
+    "apellido": [
+        "apellido",
+        "apellidos",
+    ],
+
+    "correo": [
+        "correo",
+        "correoelectronico",
+        "email",
+        "emailpersonal",
+        "emailcontacto",
+        "mail",
+        "correoempresa",
+        "correopersonal",
+    ],
+
+    "teléfono": [
+        "telefono",
+        "telefono1",
+        "telefono2",
+        "celular",
+        "movil",
+        "fono",
+        "whatsapp",
+    ],
+
+    "profesión": [
+        "profesion",
+        "ocupacion",
+    ],
+
+    "cargo": [
+        "cargo",
+        "puesto",
+    ],
+
+    "institución": [
+        "institucion",
+        "empresa",
+        "organizacion",
+        "establecimiento",
+        "colegio",
+        "escuela",
+    ],
+
+    "segmento": [
+        "segmento",
+    ],
+
+    "estado": [
+        "estado",
+    ],
+}
