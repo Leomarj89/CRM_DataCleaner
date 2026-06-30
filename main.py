@@ -44,7 +44,7 @@ def main():
     console.print()
 
     console.print(
-        "[bold green]✔ Sprint 3.1 completado correctamente[/]"
+        "[bold green]✔ Sprint 3 completado correctamente[/]"
     )
 
     console.print()

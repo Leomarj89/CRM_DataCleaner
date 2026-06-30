@@ -1,5 +1,6 @@
 from rich.console import Console
 from rich.table import Table
+from rich.rule import Rule
 from config import ALIAS_COLUMNAS
 from src.utilidades import normalizar_texto
 import pandas as pd
@@ -293,14 +294,133 @@ class InspectorDataFrame:
 
     # -------------------------------------------------
 
+    def contar_columnas_vacias(self) -> int:
+        """
+        Cuenta cuántas columnas están completamente vacías.
+
+        Returns:
+            int: Cantidad de columnas sin datos.
+        """
+
+        return self.df.isna().all().sum()
+    
+    # -------------------------------------------------
+
+    def obtener_nulos_totales(self) -> int:
+        """
+        Obtiene la cantidad total de valores nulos del DataFrame.
+
+        Returns:
+            int: Total de valores nulos.
+        """
+
+        return int(self.df.isna().sum().sum())
+    
+    # -------------------------------------------------
+
+    def mostrar_resumen_final(self) -> None:
+        """
+        Muestra el resumen final de la inspección del DataFrame.
+        """
+
+        filas, columnas = self.obtener_dimensiones()
+
+        columnas_vacias = self.contar_columnas_vacias()
+
+        resumen_unicos = self.obtener_unicos()
+
+        columnas_detectadas = self.detectar_columnas_importantes()
+
+        nulos_totales = self.obtener_nulos_totales()
+
+        fila_profesion = resumen_unicos[
+            resumen_unicos["Columna"] == "Profesión"
+        ]
+
+        if not fila_profesion.empty:
+            profesiones = int(fila_profesion["Únicos"].iloc[0])
+        else:
+            profesiones = 0
+
+        detectadas = sum(
+            columna is not None
+            for columna in columnas_detectadas.values()
+        )
+
+        tabla = Table(
+            title="Resumen final de la inspección",
+            show_header=True,
+            header_style="bold cyan"
+        )
+
+        tabla.add_column("Indicador", style="green")
+        tabla.add_column("Resultado")
+        tabla.add_row("Filas", str(filas))
+
+        tabla.add_row("Columnas", str(columnas))
+
+        tabla.add_row(
+            "Columnas completamente vacías",
+            str(columnas_vacias),
+        )
+
+        tabla.add_row(
+            "Profesiones distintas",
+            str(profesiones),
+        )
+
+        tabla.add_row(
+            "Columnas detectadas",
+            str(detectadas),
+        )
+
+        tabla.add_row(
+            "Estado",
+            "[green]Listo para limpieza[/green]",
+        )
+
+        tabla.add_row(
+            "Valores nulos totales",
+            str(nulos_totales),
+        )
+
+        console.print(tabla)
+
+    # -------------------------------------------------
+
     def ejecutar(self) -> None:
         """
-        Ejecuta la inspección básica.
+        Ejecuta la inspección completa del DataFrame.
         """
 
         self.mostrar_resumen_general()
+
+        console.print()
+        console.print(Rule(style="cyan"))
+
         self.mostrar_tipos()
+
+        console.print()
+        console.print(Rule(style="cyan"))
+
         self.mostrar_nulos()
+
+        console.print()
+        console.print(Rule(style="cyan"))
+
         self.mostrar_unicos()
+
+        console.print()
+        console.print(Rule(style="cyan"))
+
         self.mostrar_muestra()
+
+        console.print()
+        console.print(Rule(style="cyan"))
+
         self.mostrar_columnas_importantes()
+
+        console.print()
+        console.print(Rule(style="cyan"))
+
+        self.mostrar_resumen_final()
