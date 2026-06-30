@@ -5,6 +5,7 @@ from src.logger import logger
 from src.utilidades import crear_carpetas
 from src.lector import LectorCSV
 from src.inspector import InspectorDataFrame
+from src.limpiador import LimpiadorDatos
 
 console = Console()
 
@@ -49,6 +50,31 @@ def main():
 
     console.print()
 
+    # -------------------------------
+    # Inspección del DataFrame
+    # -------------------------------
+
+    inspector = InspectorDataFrame(
+        dataframe=df,
+        nombre_archivo=lector.archivo.name
+    )
+
+    inspector.ejecutar()
+
+    # -------------------------------
+    # Limpieza del DataFrame
+    # -------------------------------
+
+    columnas_detectadas = (
+        inspector.detectar_columnas_importantes()
+    )
+
+    limpiador = LimpiadorDatos(
+        dataframe=df,
+        columnas_detectadas=columnas_detectadas,
+    )
+
+    df = limpiador.ejecutar()
 
 if __name__ == "__main__":
     main()
