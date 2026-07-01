@@ -1,5 +1,7 @@
 from rich.console import Console
 from rich.table import Table
+import pandas as pd
+from unidecode import unidecode
 
 console = Console()
 
@@ -56,6 +58,85 @@ class LimpiadorDatos:
     
     # -------------------------------------------------
 
+    def actualizar_columna(
+    self,
+    tipo_columna: str,
+    serie: pd.Series,
+    ) -> None:
+        """
+        Actualiza una columna del DataFrame.
+
+        Args:
+            tipo_columna:
+                Tipo de columna definido en ALIAS_COLUMNAS.
+
+            serie:
+                Serie con los datos ya procesados.
+        """
+
+        nombre_columna = self.columnas.get(tipo_columna)
+
+        if nombre_columna is None:
+            return
+
+        self.df[nombre_columna] = serie
+    
+    # -------------------------------------------------
+    
+    def eliminar_espacios(
+    self,
+    serie: pd.Series
+    ) -> pd.Series:
+        """
+        Elimina espacios al inicio, al final y espacios dobles.
+
+        Args:
+            serie:
+                Serie de texto a limpiar.
+
+        Returns:
+            pd.Series:
+                Serie normalizada.
+        """
+
+        return (
+            serie
+            .fillna("")
+            .astype(str)
+            .str.strip()
+            .str.replace(r"\s+", " ", regex=True)
+        )
+    
+    # -------------------------------------------------
+
+    def normalizar_texto(
+    self,
+    serie: pd.Series,
+    ) -> pd.Series:
+        """
+        Normaliza el texto de una serie.
+
+        Convierte el contenido a mayúsculas y elimina acentos.
+
+        Args:
+            serie:
+                Serie de texto.
+
+        Returns:
+            pd.Series:
+                Serie normalizada.
+        """
+
+        return (
+            serie
+            .fillna("")
+            .astype(str)
+            .map(unidecode)
+            .str.upper()
+        )
+
+    # -------------------------------------------------
+
     def mostrar_columnas_disponibles(self) -> None:
         """
         Muestra las columnas disponibles para iniciar el proceso de limpieza.
@@ -106,7 +187,24 @@ class LimpiadorDatos:
         )
 
         self.mostrar_columnas_disponibles()
-        
+
+        profesiones = self.obtener_columna("profesion")
+
+        if profesiones is not None:
+
+            profesiones = self.eliminar_espacios(
+                profesiones
+            )
+
+            profesiones = self.normalizar_texto(
+                profesiones
+            )
+
+            self.actualizar_columna(
+                "profesion",
+                profesiones,
+            )
+
         console.print()
 
         return self.df
