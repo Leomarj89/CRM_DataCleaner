@@ -2,6 +2,7 @@ from rich.console import Console
 from rich.table import Table
 import pandas as pd
 from unidecode import unidecode
+from config import PATRONES_PROFESION
 
 console = Console()
 
@@ -134,6 +135,66 @@ class LimpiadorDatos:
             .map(unidecode)
             .str.upper()
         )
+    
+    # -------------------------------------------------
+
+    def eliminar_puntuacion(
+    self,
+    serie: pd.Series,
+    ) -> pd.Series:
+        """
+        Elimina los signos de puntuación más comunes.
+
+        Args:
+            serie:
+                Serie de texto.
+
+        Returns:
+            pd.Series:
+                Serie sin signos de puntuación.
+        """
+
+        return (
+            serie
+            .str.replace(".", "", regex=False)
+            .str.replace(",", "", regex=False)
+            .str.replace(";", "", regex=False)
+            .str.replace(":", "", regex=False)
+        )
+    
+    # -------------------------------------------------
+
+    def eliminar_patrones(
+    self,
+    serie: pd.Series,
+    patrones: list[str],
+    ) -> pd.Series:
+        """
+        Elimina una lista de patrones utilizando expresiones regulares.
+
+        Args:
+            serie:
+                Serie de texto.
+
+            patrones:
+                Lista de patrones regex a eliminar.
+
+        Returns:
+            pd.Series:
+                Serie con los patrones eliminados.
+        """
+
+        serie = serie.copy()
+
+        for patron in patrones:
+
+            serie = serie.str.replace(
+                patron,
+                "",
+                regex=True,
+            )
+
+        return serie
 
     # -------------------------------------------------
 
@@ -198,6 +259,15 @@ class LimpiadorDatos:
 
             profesiones = self.normalizar_texto(
                 profesiones
+            )
+
+            profesiones = self.eliminar_puntuacion(
+                profesiones
+            )
+
+            profesiones = self.eliminar_patrones(
+                profesiones,
+                PATRONES_PROFESION,
             )
 
             self.actualizar_columna(

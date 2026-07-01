@@ -101,3 +101,23 @@ ALIAS_COLUMNAS = {
         "estado",
     ],
 }
+
+# ======================================================
+# Patrones de limpieza
+# ======================================================
+
+PATRONES_PROFESION = [
+    r"\(A\)",
+    r"\(O\)",
+    r"\(AS\)",
+    r"\(OS\)",
+    r"\bPIE\b",
+]
+
+PATRONES_INSTITUCION = [
+
+]
+
+PATRONES_CARGO = [
+
+]
