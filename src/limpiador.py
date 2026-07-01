@@ -81,6 +81,64 @@ class LimpiadorDatos:
             return
 
         self.df[nombre_columna] = serie
+
+    # -------------------------------------------------
+
+    def aplicar_transformaciones(
+    self,
+    serie: pd.Series,
+    transformaciones: list,
+    ) -> pd.Series:
+        """
+        Aplica una secuencia de transformaciones sobre una serie.
+
+        Args:
+            serie:
+                Serie a transformar.
+
+            transformaciones:
+                Lista de funciones de transformación.
+
+        Returns:
+            pd.Series:
+                Serie transformada.
+        """
+
+        for transformacion in transformaciones:
+
+            serie = transformacion(serie)
+
+        return serie
+    
+    # -------------------------------------------------
+
+    def limpiar_profesiones(self) -> None:
+        """
+        Limpia y normaliza la columna de profesiones.
+        """
+
+        profesiones = self.obtener_columna("profesion")
+
+        if profesiones is None:
+            return
+
+        profesiones = self.aplicar_transformaciones(
+            profesiones,
+            [
+                self.eliminar_espacios,
+                self.normalizar_texto,
+                self.eliminar_puntuacion,
+                lambda serie: self.eliminar_patrones(
+                    serie,
+                    PATRONES_PROFESION,
+                ),
+            ],
+        )
+
+        self.actualizar_columna(
+            "profesion",
+            profesiones,
+        )
     
     # -------------------------------------------------
     
@@ -249,31 +307,7 @@ class LimpiadorDatos:
 
         self.mostrar_columnas_disponibles()
 
-        profesiones = self.obtener_columna("profesion")
-
-        if profesiones is not None:
-
-            profesiones = self.eliminar_espacios(
-                profesiones
-            )
-
-            profesiones = self.normalizar_texto(
-                profesiones
-            )
-
-            profesiones = self.eliminar_puntuacion(
-                profesiones
-            )
-
-            profesiones = self.eliminar_patrones(
-                profesiones,
-                PATRONES_PROFESION,
-            )
-
-            self.actualizar_columna(
-                "profesion",
-                profesiones,
-            )
+        self.limpiar_profesiones()
 
         console.print()
 
