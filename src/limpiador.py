@@ -2,7 +2,10 @@ from rich.console import Console
 from rich.table import Table
 import pandas as pd
 from unidecode import unidecode
-from config import PATRONES_PROFESION
+from config import (
+    PATRONES_PROFESION,
+    REEMPLAZOS_PROFESION,
+)
 
 console = Console()
 
@@ -17,8 +20,8 @@ class LimpiadorDatos:
 
     def __init__(
         self,
-        dataframe,
-        columnas_detectadas,
+        dataframe: pd.DataFrame,
+        columnas_detectadas: dict[str, str | None],
     ):
         """
         Inicializa el limpiador.
@@ -37,7 +40,10 @@ class LimpiadorDatos:
     
     # -------------------------------------------------
     
-    def obtener_columna(self, tipo_columna: str):
+    def obtener_columna(
+        self,
+        tipo_columna: str,
+    ) -> pd.Series | None:
         """
         Obtiene una columna del DataFrame utilizando el tipo detectado.
 
@@ -132,6 +138,11 @@ class LimpiadorDatos:
                     serie,
                     PATRONES_PROFESION,
                 ),
+                self.eliminar_espacios_multiples,
+                lambda serie: self.reemplazar_valores(
+                    serie,
+                    REEMPLAZOS_PROFESION,
+                ),
             ],
         )
 
@@ -163,7 +174,6 @@ class LimpiadorDatos:
             .fillna("")
             .astype(str)
             .str.strip()
-            .str.replace(r"\s+", " ", regex=True)
         )
     
     # -------------------------------------------------
@@ -242,8 +252,6 @@ class LimpiadorDatos:
                 Serie con los patrones eliminados.
         """
 
-        serie = serie.copy()
-
         for patron in patrones:
 
             serie = serie.str.replace(
@@ -253,6 +261,54 @@ class LimpiadorDatos:
             )
 
         return serie
+    
+    # -------------------------------------------------
+
+    def reemplazar_valores(
+    self,
+    serie: pd.Series,
+    reemplazos: dict[str, str],
+    ) -> pd.Series:
+        """
+        Reemplaza valores utilizando un diccionario.
+
+        Args:
+            serie:
+                Serie de texto.
+
+            reemplazos:
+                Diccionario de reemplazos.
+
+        Returns:
+            pd.Series:
+                Serie con los valores reemplazados.
+        """
+
+        return serie.replace(reemplazos)
+    
+    # -------------------------------------------------
+
+    def eliminar_espacios_multiples(
+    self,
+    serie: pd.Series,
+    ) -> pd.Series:
+        """
+        Reemplaza múltiples espacios consecutivos por uno solo.
+
+        Args:
+            serie:
+                Serie de texto.
+
+        Returns:
+            pd.Series:
+                Serie con espacios normalizados.
+        """
+
+        return serie.str.replace(
+            r"\s+",
+            " ",
+            regex=True,
+        ).str.strip()
 
     # -------------------------------------------------
 
@@ -291,7 +347,7 @@ class LimpiadorDatos:
 
     # -------------------------------------------------
 
-    def ejecutar(self):
+    def ejecutar(self) -> pd.DataFrame:
         """
         Ejecuta el proceso de limpieza.
 
